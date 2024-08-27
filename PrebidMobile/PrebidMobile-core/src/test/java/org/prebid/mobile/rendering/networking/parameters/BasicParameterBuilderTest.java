@@ -129,7 +129,6 @@ public class BasicParameterBuilderTest {
         TargetingParams.setOmidPartnerVersion(null);
 
         PrebidMobile.sendMraidSupportParams = true;
-        PrebidMobile.useExternalBrowser = false;
         PrebidMobile.isCoppaEnabled = false;
         PrebidMobile.clearStoredBidResponses();
         PrebidMobile.setStoredAuctionResponse(null);
@@ -635,7 +634,6 @@ public class BasicParameterBuilderTest {
         adConfiguration.setAdFormat(AdFormat.BANNER);
         adConfiguration.addSize(new AdSize(320, 50));
 
-        PrebidMobile.useExternalBrowser = false;
 
         BasicParameterBuilder builder = new BasicParameterBuilder(adConfiguration,
                 context.getResources(),
@@ -654,8 +652,6 @@ public class BasicParameterBuilderTest {
         adConfiguration.setAdFormat(AdFormat.BANNER);
         adConfiguration.addSize(new AdSize(320, 50));
 
-        PrebidMobile.useExternalBrowser = true;
-
         BasicParameterBuilder builder = new BasicParameterBuilder(adConfiguration,
                 context.getResources(),
                 browserActivityAvailable
@@ -672,8 +668,6 @@ public class BasicParameterBuilderTest {
         AdUnitConfiguration adConfiguration = new AdUnitConfiguration();
         adConfiguration.setAdFormat(AdFormat.BANNER);
         adConfiguration.addSize(new AdSize(320, 50));
-
-        PrebidMobile.useExternalBrowser = false;
 
         BasicParameterBuilder builder = new BasicParameterBuilder(adConfiguration, context.getResources(), false);
         AdRequestInput adRequestInput = new AdRequestInput();
@@ -1149,7 +1143,7 @@ public class BasicParameterBuilderTest {
         imp.instl = isInterstitial ? 1 : 0;
 
         // 0 == embedded, 1 == native
-        imp.clickBrowser = !PrebidMobile.useExternalBrowser && browserActivityAvailable ? 0 : 1;
+        imp.clickBrowser = browserActivityAvailable ? 0 : 1;
         imp.id = uuid;
         imp.getExt().put("prebid", Prebid.getJsonObjectForImp(adConfiguration));
 
