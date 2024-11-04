@@ -10,6 +10,7 @@ import org.prebid.mobile.api.exceptions.AdException;
 import org.prebid.mobile.configuration.NativeAdUnitConfiguration;
 import org.prebid.mobile.rendering.bidding.data.bid.BidResponse;
 import org.prebid.mobile.rendering.bidding.listeners.BidRequesterListener;
+import org.prebid.mobile.rendering.models.openrtb.BidRequest;
 
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -33,8 +34,19 @@ public class NativeAdUnit extends AdUnit {
     protected BidRequesterListener createBidListener(OnCompleteListener originalListener) {
         return new BidRequesterListener() {
             @Override
+            public void onRequest(BidRequest request) {
+                if (onBidRequestResponseListener != null) {
+                    onBidRequestResponseListener.onBidRequest(request);
+                }
+            }
+
+            @Override
             public void onFetchCompleted(BidResponse response) {
                 bidResponse = response;
+
+                if (onBidRequestResponseListener != null) {
+                    onBidRequestResponseListener.onBidResponse(response);
+                }
 
                 HashMap<String, String> keywords = response.getTargeting();
                 Util.apply(keywords, adObject);

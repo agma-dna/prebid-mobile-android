@@ -16,6 +16,7 @@
 
 package org.prebid.mobile.rendering.networking.urlBuilder;
 
+import org.prebid.mobile.rendering.models.openrtb.BidRequest;
 import org.prebid.mobile.rendering.networking.parameters.AdRequestInput;
 import org.prebid.mobile.rendering.networking.parameters.ParameterBuilder;
 
@@ -38,9 +39,13 @@ public class URLBuilder {
     }
 
     public BidUrlComponents buildUrl() {
-        AdRequestInput adRequestInput = buildParameters(paramBuilders, this.adRequestInput);
+        AdRequestInput adRequestInput = builAdRequestInput();
         String initialPath = pathBuilder.buildURLPath("");
         return new BidUrlComponents(initialPath, adRequestInput);
+    }
+
+    public AdRequestInput builAdRequestInput() {
+        return buildParameters(paramBuilders, this.adRequestInput);
     }
 
     static AdRequestInput buildParameters(ArrayList<ParameterBuilder> paramBuilders, AdRequestInput adRequestInput) {

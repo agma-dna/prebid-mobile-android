@@ -27,6 +27,7 @@ import org.prebid.mobile.ContentObject;
 import org.prebid.mobile.DataObject;
 import org.prebid.mobile.Host;
 import org.prebid.mobile.LogUtil;
+import org.prebid.mobile.OnBidRequestResponseListener;
 import org.prebid.mobile.PrebidMobile;
 import org.prebid.mobile.api.data.FetchDemandResult;
 import org.prebid.mobile.api.exceptions.AdException;
@@ -37,6 +38,7 @@ import org.prebid.mobile.rendering.bidding.display.BidResponseCache;
 import org.prebid.mobile.rendering.bidding.display.PrebidMediationDelegate;
 import org.prebid.mobile.rendering.bidding.listeners.BidRequesterListener;
 import org.prebid.mobile.rendering.bidding.loader.BidLoader;
+import org.prebid.mobile.rendering.models.openrtb.BidRequest;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -53,10 +55,24 @@ public abstract class MediationBaseAdUnit {
     protected PrebidMediationDelegate mediationDelegate;
     protected BidLoader bidLoader;
 
+    @Nullable
+    public OnBidRequestResponseListener onBidRequestResponseListener;
+
     private final BidRequesterListener bidRequesterListener = new BidRequesterListener() {
+        @Override
+        public void onRequest(BidRequest request) {
+            onRequestReceived(request);
+            if (onBidRequestResponseListener != null) {
+                onBidRequestResponseListener.onBidRequest(request);
+            }
+        }
+
         @Override
         public void onFetchCompleted(BidResponse response) {
             onResponseReceived(response);
+            if (onBidRequestResponseListener != null) {
+                onBidRequestResponseListener.onBidResponse(response);
+            }
         }
 
         @Override
@@ -280,6 +296,10 @@ public abstract class MediationBaseAdUnit {
         String configId,
         AdSize adSize
     );
+
+    protected void onRequestReceived(BidRequest request) {
+        LogUtil.debug(TAG, "On request received");
+    }
 
     protected void onResponseReceived(BidResponse response) {
         LogUtil.debug(TAG, "On response received");

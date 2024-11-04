@@ -1,5 +1,5 @@
 /*
- *    Copyright 2018-2021 Prebid.org, Inc.
+ *    Copyright 2018-2019 Prebid.org, Inc.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,16 +14,17 @@
  *    limitations under the License.
  */
 
-package org.prebid.mobile.rendering.bidding.listeners;
+package org.prebid.mobile;
 
-import org.prebid.mobile.api.exceptions.AdException;
+import androidx.annotation.MainThread;
+import androidx.annotation.Nullable;
+
 import org.prebid.mobile.rendering.bidding.data.bid.BidResponse;
 import org.prebid.mobile.rendering.models.openrtb.BidRequest;
 
-public interface BidRequesterListener {
-    void onRequest(BidRequest request);
-
-    void onFetchCompleted(BidResponse response);
-
-    void onError(AdException exception);
+public interface OnBidRequestResponseListener {
+    @MainThread
+    void onBidRequest(@Nullable BidRequest request);
+    @MainThread
+    void onBidResponse(@Nullable BidResponse response);
 }

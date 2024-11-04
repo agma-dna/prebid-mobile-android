@@ -25,6 +25,7 @@ import org.prebid.mobile.LogUtil;
 import org.prebid.mobile.api.exceptions.AdException;
 import org.prebid.mobile.configuration.AdUnitConfiguration;
 import org.prebid.mobile.rendering.listeners.AdIdFetchListener;
+import org.prebid.mobile.rendering.models.openrtb.BidRequest;
 import org.prebid.mobile.rendering.networking.BaseNetworkTask;
 import org.prebid.mobile.rendering.networking.ResponseHandler;
 import org.prebid.mobile.rendering.networking.parameters.AdRequestInput;
@@ -188,6 +189,10 @@ public abstract class Requester {
 
     protected URLComponents buildUrlComponent() {
         return urlBuilder.buildUrl();
+    }
+
+    public BidRequest getBidRequest() {
+        return urlBuilder.builAdRequestInput().getBidRequest();
     }
 
     protected void sendAdRequest(URLComponents jsonUrlComponents) {

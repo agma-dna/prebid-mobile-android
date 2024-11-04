@@ -13,7 +13,10 @@ import com.google.android.gms.ads.admanager.AdManagerInterstitialAdLoadCallback;
 
 import org.prebid.mobile.AdUnit;
 import org.prebid.mobile.InterstitialAdUnit;
+import org.prebid.mobile.OnBidRequestResponseListener;
 import org.prebid.mobile.javademo.activities.BaseAdActivity;
+import org.prebid.mobile.rendering.bidding.data.bid.BidResponse;
+import org.prebid.mobile.rendering.models.openrtb.BidRequest;
 
 public class GamOriginalApiDisplayInterstitial extends BaseAdActivity {
 
@@ -34,6 +37,18 @@ public class GamOriginalApiDisplayInterstitial extends BaseAdActivity {
         adUnit.setAutoRefreshInterval(getRefreshTimeSeconds());
 
         final AdManagerAdRequest.Builder builder = new AdManagerAdRequest.Builder();
+        adUnit.onBidRequestResponseListener = new OnBidRequestResponseListener() {
+            @Override
+            public void onBidRequest(@Nullable BidRequest request) {
+                Log.d("GamInterstitial", request.toString());
+            }
+
+            @Override
+            public void onBidResponse(@Nullable BidResponse response) {
+                Log.d("GamInterstitial", response.toString());
+            }
+        };
+
         adUnit.fetchDemand(builder, resultCode -> {
             AdManagerAdRequest request = builder.build();
             AdManagerInterstitialAd.load(this, AD_UNIT_ID, request, createListener());

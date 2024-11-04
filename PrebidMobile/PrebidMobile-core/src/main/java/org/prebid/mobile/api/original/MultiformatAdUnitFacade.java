@@ -12,6 +12,7 @@ import org.prebid.mobile.BannerParameters;
 import org.prebid.mobile.ContentObject;
 import org.prebid.mobile.DataObject;
 import org.prebid.mobile.NativeParameters;
+import org.prebid.mobile.OnBidRequestResponseListener;
 import org.prebid.mobile.OnCompleteListener;
 import org.prebid.mobile.ResultCode;
 import org.prebid.mobile.Util;
@@ -24,6 +25,7 @@ import org.prebid.mobile.rendering.bidding.data.bid.BidResponse;
 import org.prebid.mobile.rendering.bidding.listeners.BidRequesterListener;
 import org.prebid.mobile.rendering.models.AdPosition;
 import org.prebid.mobile.rendering.models.PlacementType;
+import org.prebid.mobile.rendering.models.openrtb.BidRequest;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,6 +41,9 @@ class MultiformatAdUnitFacade extends AdUnit {
     @Nullable
     private BidResponse bidResponse;
 
+    @Nullable
+    public OnBidRequestResponseListener onBidRequestResponseListener;
+
     public MultiformatAdUnitFacade(@NotNull String configId, @NonNull PrebidRequest request) {
         super(configId);
         allowNullableAdObject = true;
@@ -49,8 +54,19 @@ class MultiformatAdUnitFacade extends AdUnit {
     protected BidRequesterListener createBidListener(OnCompleteListener originalListener) {
         return new BidRequesterListener() {
             @Override
+            public void onRequest(BidRequest request) {
+                if (onBidRequestResponseListener != null) {
+                    onBidRequestResponseListener.onBidRequest(request);
+                }
+            }
+
+            @Override
             public void onFetchCompleted(BidResponse response) {
                 bidResponse = response;
+
+                if (onBidRequestResponseListener != null) {
+                    onBidRequestResponseListener.onBidResponse(response);
+                }
 
                 HashMap<String, String> keywords = response.getTargeting();
                 Util.apply(keywords, adObject);

@@ -57,6 +57,7 @@ import org.prebid.mobile.rendering.models.AdPosition;
 import org.prebid.mobile.rendering.models.PlacementType;
 import org.prebid.mobile.rendering.models.internal.VisibilityTrackerOption;
 import org.prebid.mobile.rendering.models.ntv.NativeEventTracker;
+import org.prebid.mobile.rendering.models.openrtb.BidRequest;
 import org.prebid.mobile.rendering.utils.broadcast.ScreenStateReceiver;
 import org.prebid.mobile.rendering.utils.helpers.VisibilityChecker;
 import org.prebid.mobile.rendering.views.webview.mraid.Views;
@@ -76,6 +77,7 @@ public class BannerView extends FrameLayout {
 
     private DisplayView displayView;
     private BidLoader bidLoader;
+    private BidRequest bidRequest;
     private BidResponse bidResponse;
 
     private final ScreenStateReceiver screenStateReceiver = new ScreenStateReceiver();
@@ -168,6 +170,11 @@ public class BannerView extends FrameLayout {
 
     @Nullable
     private BidRequesterListener bidRequesterListener = new BidRequesterListener() {
+        @Override
+        public void onRequest(BidRequest request) {
+            bidRequest = request;
+        }
+
         @Override
         public void onFetchCompleted(BidResponse response) {
             bidResponse = response;

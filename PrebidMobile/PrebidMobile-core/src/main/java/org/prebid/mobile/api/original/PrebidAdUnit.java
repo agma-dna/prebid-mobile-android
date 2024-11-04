@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import org.prebid.mobile.LogUtil;
+import org.prebid.mobile.OnBidRequestResponseListener;
 import org.prebid.mobile.ResultCode;
 import org.prebid.mobile.api.data.BidInfo;
 
@@ -17,6 +18,9 @@ public class PrebidAdUnit {
     private final String configId;
     @Nullable
     private MultiformatAdUnitFacade adUnit;
+
+    @Nullable
+    public OnBidRequestResponseListener onBidRequestResponseListener;
 
     public PrebidAdUnit(@NonNull String configId) {
         this.configId = configId;
@@ -84,6 +88,7 @@ public class PrebidAdUnit {
         }
 
         adUnit = new MultiformatAdUnitFacade(configId, request);
+        adUnit.onBidRequestResponseListener = onBidRequestResponseListener;
 
         OnCompleteListenerImpl innerListener = new OnCompleteListenerImpl(adUnit, adObject, userListener);
         if (adObject != null) {

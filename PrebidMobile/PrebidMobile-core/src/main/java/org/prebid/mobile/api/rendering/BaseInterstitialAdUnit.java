@@ -42,6 +42,7 @@ import org.prebid.mobile.rendering.bidding.interfaces.InterstitialControllerList
 import org.prebid.mobile.rendering.bidding.listeners.BidRequesterListener;
 import org.prebid.mobile.rendering.bidding.loader.BidLoader;
 import org.prebid.mobile.rendering.models.AdPosition;
+import org.prebid.mobile.rendering.models.openrtb.BidRequest;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -55,6 +56,7 @@ public abstract class BaseInterstitialAdUnit {
     protected AdUnitConfiguration adUnitConfig;
 
     private BidLoader bidLoader;
+    private BidRequest bidRequest;
     private BidResponse bidResponse;
     private PrebidMobileInterstitialControllerInterface interstitialController;
     private InterstitialAdUnitState interstitialAdUnitState = READY_FOR_LOAD;
@@ -431,6 +433,11 @@ public abstract class BaseInterstitialAdUnit {
 
     private BidRequesterListener createBidRequesterListener() {
         return new BidRequesterListener() {
+            @Override
+            public void onRequest(BidRequest request) {
+                bidRequest = request;
+            }
+
             @Override
             public void onFetchCompleted(BidResponse response) {
                 bidResponse = response;

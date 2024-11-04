@@ -186,7 +186,11 @@ public class BidLoader {
     private void sendBidRequest(AdUnitConfiguration config) {
         currentlyLoading.set(true);
         if (bidRequester == null) {
-            bidRequester = new BidRequester(config, new AdRequestInput(), responseHandler);
+            AdRequestInput adRequestInput = new AdRequestInput();
+            bidRequester = new BidRequester(config, adRequestInput, responseHandler);
+            if (requestListener != null) {
+                requestListener.onRequest(bidRequester.getBidRequest());
+            }
         }
         bidRequester.startAdRequest();
     }
