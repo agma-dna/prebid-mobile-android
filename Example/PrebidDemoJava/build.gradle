@@ -31,6 +31,9 @@ dependencies {
 //    Source code
     implementation project(':PrebidMobile')
 
+    // Dependencies for Agma SDK
+    implementation("de.agmammc:agmasdk:1.0.0")
+
     // For testing staging releases
 //    implementation "org.prebid:prebid-mobile-sdk:$prebidSdkVersionName"
 

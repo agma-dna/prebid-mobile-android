@@ -21,11 +21,15 @@ import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
+import de.agmammc.agmasdk.android.AgmaSdk
 import org.prebid.mobile.AdSize
+import org.prebid.mobile.OnBidRequestResponseListener
 import org.prebid.mobile.admob.AdMobMediationBannerUtils
 import org.prebid.mobile.admob.PrebidBannerAdapter
 import org.prebid.mobile.api.mediation.MediationBannerAdUnit
 import org.prebid.mobile.prebidkotlindemo.activities.BaseAdActivity
+import org.prebid.mobile.rendering.bidding.data.bid.BidResponse
+import org.prebid.mobile.rendering.models.openrtb.BidRequest
 
 class AdMobDisplayBanner320x50Activity : BaseAdActivity() {
 
@@ -75,6 +79,21 @@ class AdMobDisplayBanner320x50Activity : BaseAdActivity() {
             AdSize(WIDTH, HEIGHT),
             mediationUtils
         )
+
+        // Setup Agma SDK Listener
+        adUnit?.onBidRequestResponseListener = object : OnBidRequestResponseListener {
+            override fun onBidRequest(request: BidRequest?) {
+                Log.d("onBidRequest", request.toString())
+                request?.let {
+                    AgmaSdk.getInstance(applicationContext).didReceivePrebidRequest(it.jsonObject)
+                }
+            }
+
+            override fun onBidResponse(response: BidResponse?) {
+                Log.d("onBidResponse", response.toString())
+            }
+        }
+
         adUnit?.setRefreshInterval(refreshTimeSeconds / 1000)
         adUnit?.fetchDemand { _ ->
             bannerView?.loadAd(request)

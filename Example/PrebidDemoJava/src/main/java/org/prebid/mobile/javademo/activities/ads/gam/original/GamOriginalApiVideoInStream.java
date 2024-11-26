@@ -2,6 +2,7 @@ package org.prebid.mobile.javademo.activities.ads.gam.original;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.ViewGroup;
 
 import androidx.annotation.Nullable;
@@ -17,15 +18,21 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 
+import org.json.JSONException;
 import org.prebid.mobile.InStreamVideoAdUnit;
+import org.prebid.mobile.OnBidRequestResponseListener;
 import org.prebid.mobile.Signals;
 import org.prebid.mobile.Util;
 import org.prebid.mobile.VideoParameters;
 import org.prebid.mobile.javademo.R;
 import org.prebid.mobile.javademo.activities.BaseAdActivity;
+import org.prebid.mobile.rendering.bidding.data.bid.BidResponse;
+import org.prebid.mobile.rendering.models.openrtb.BidRequest;
 
 import java.util.Collections;
 import java.util.HashSet;
+
+import de.agmammc.agmasdk.android.AgmaSdk;
 
 public class GamOriginalApiVideoInStream extends BaseAdActivity {
 
@@ -62,6 +69,24 @@ public class GamOriginalApiVideoInStream extends BaseAdActivity {
         parameters.setPlaybackMethod(Collections.singletonList(Signals.PlaybackMethod.AutoPlaySoundOff));
         parameters.setPlacement(Signals.Placement.InStream);
         adUnit.setVideoParameters(parameters);
+
+        // Setup Agma SDK Listener
+        adUnit.onBidRequestResponseListener = new OnBidRequestResponseListener() {
+            @Override
+            public void onBidRequest(@Nullable BidRequest request) {
+                Log.d("onBidRequest", request.toString());
+                try {
+                    AgmaSdk.getInstance(getApplicationContext()).didReceivePrebidRequest(request.getJsonObject());
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            @Override
+            public void onBidResponse(@Nullable BidResponse response) {
+                Log.d("onBidResponse", response.toString());
+            }
+        };
 
         adUnit.fetchDemand((resultCode, keysMap) -> {
             HashSet<org.prebid.mobile.AdSize> sizes = new HashSet<>();

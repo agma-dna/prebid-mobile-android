@@ -1,10 +1,12 @@
 package org.prebid.mobile.prebidkotlindemo.activities.ads.gam.original
 
 import android.os.Bundle
+import android.util.Log
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.admanager.AdManagerAdRequest
 import com.google.android.gms.ads.admanager.AdManagerAdView
+import de.agmammc.agmasdk.android.AgmaSdk
 import org.prebid.mobile.*
 import org.prebid.mobile.addendum.AdViewUtils
 import org.prebid.mobile.addendum.AdViewUtils.PbFindSizeListener
@@ -12,6 +14,8 @@ import org.prebid.mobile.addendum.PbFindSizeError
 import org.prebid.mobile.api.original.PrebidAdUnit
 import org.prebid.mobile.api.original.PrebidRequest
 import org.prebid.mobile.prebidkotlindemo.activities.BaseAdActivity
+import org.prebid.mobile.rendering.bidding.data.bid.BidResponse
+import org.prebid.mobile.rendering.models.openrtb.BidRequest
 
 class GamOriginalApiMultiformatBannerVideoNativeStylesActivity : BaseAdActivity() {
 
@@ -42,6 +46,20 @@ class GamOriginalApiMultiformatBannerVideoNativeStylesActivity : BaseAdActivity(
         prebidRequest.setBannerParameters(createBannerParameters())
         prebidRequest.setVideoParameters(createVideoParameters())
         prebidRequest.setNativeParameters(createNativeParameters())
+
+        // Setup Agma SDK Listener
+        prebidAdUnit?.onBidRequestResponseListener = object : OnBidRequestResponseListener {
+            override fun onBidRequest(request: BidRequest?) {
+                Log.d("onBidRequest", request.toString())
+                request?.let {
+                    AgmaSdk.getInstance(applicationContext).didReceivePrebidRequest(it.jsonObject)
+                }
+            }
+
+            override fun onBidResponse(response: BidResponse?) {
+                Log.d("onBidResponse", response.toString())
+            }
+        }
 
         // 3. Make a bid request to Prebid Server
         val gamRequest = AdManagerAdRequest.Builder().build()

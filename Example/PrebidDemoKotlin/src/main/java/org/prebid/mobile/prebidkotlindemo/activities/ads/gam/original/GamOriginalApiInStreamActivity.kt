@@ -17,6 +17,7 @@ package org.prebid.mobile.prebidkotlindemo.activities.ads.gam.original
 
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.ViewGroup
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.SimpleExoPlayer
@@ -28,9 +29,12 @@ import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DataSpec
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import de.agmammc.agmasdk.android.AgmaSdk
 import org.prebid.mobile.*
 import org.prebid.mobile.prebidkotlindemo.R
 import org.prebid.mobile.prebidkotlindemo.activities.BaseAdActivity
+import org.prebid.mobile.rendering.bidding.data.bid.BidResponse
+import org.prebid.mobile.rendering.models.openrtb.BidRequest
 
 class GamOriginalApiInStreamActivity : BaseAdActivity() {
 
@@ -68,6 +72,20 @@ class GamOriginalApiInStreamActivity : BaseAdActivity() {
         playerView = PlayerView(this)
         val params = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 600)
         adWrapperView.addView(playerView, params)
+
+        // Setup Agma SDK Listener
+        adUnit?.onBidRequestResponseListener = object : OnBidRequestResponseListener {
+            override fun onBidRequest(request: BidRequest?) {
+                Log.d("onBidRequest", request.toString())
+                request?.let {
+                    AgmaSdk.getInstance(applicationContext).didReceivePrebidRequest(it.jsonObject)
+                }
+            }
+
+            override fun onBidResponse(response: BidResponse?) {
+                Log.d("onBidResponse", response.toString())
+            }
+        }
 
         // 4. Make a bid request to Prebid Server
         adUnit?.fetchDemand { _: ResultCode?, keysMap: Map<String?, String?>? ->

@@ -16,14 +16,19 @@
 package org.prebid.mobile.prebidkotlindemo.activities.ads.applovin
 
 import android.os.Bundle
+import android.util.Log
 import com.applovin.mediation.MaxAd
 import com.applovin.mediation.MaxError
 import com.applovin.mediation.MaxReward
 import com.applovin.mediation.MaxRewardedAdListener
 import com.applovin.mediation.adapters.prebid.utils.MaxMediationRewardedUtils
 import com.applovin.mediation.ads.MaxRewardedAd
+import de.agmammc.agmasdk.android.AgmaSdk
+import org.prebid.mobile.OnBidRequestResponseListener
 import org.prebid.mobile.api.mediation.MediationRewardedVideoAdUnit
 import org.prebid.mobile.prebidkotlindemo.activities.BaseAdActivity
+import org.prebid.mobile.rendering.bidding.data.bid.BidResponse
+import org.prebid.mobile.rendering.models.openrtb.BidRequest
 
 class AppLovinMaxVideoRewardedActivity : BaseAdActivity() {
 
@@ -60,6 +65,21 @@ class AppLovinMaxVideoRewardedActivity : BaseAdActivity() {
         })
 
         val mediationUtils = MaxMediationRewardedUtils(maxRewardedAd)
+
+        // Setup Agma SDK Listener
+        adUnit?.onBidRequestResponseListener = object : OnBidRequestResponseListener {
+            override fun onBidRequest(request: BidRequest?) {
+                Log.d("onBidRequest", request.toString())
+                request?.let {
+                    AgmaSdk.getInstance(applicationContext).didReceivePrebidRequest(it.jsonObject)
+                }
+            }
+
+            override fun onBidResponse(response: BidResponse?) {
+                Log.d("onBidResponse", response.toString())
+            }
+        }
+
         adUnit = MediationRewardedVideoAdUnit(
             this,
             CONFIG_ID,

@@ -26,9 +26,13 @@ import com.applovin.mediation.MaxError
 import com.applovin.mediation.adapters.prebid.utils.MaxMediationBannerUtils
 import com.applovin.mediation.ads.MaxAdView
 import com.applovin.sdk.AppLovinSdkUtils
+import de.agmammc.agmasdk.android.AgmaSdk
 import org.prebid.mobile.AdSize
+import org.prebid.mobile.OnBidRequestResponseListener
 import org.prebid.mobile.api.mediation.MediationBannerAdUnit
 import org.prebid.mobile.prebidkotlindemo.activities.BaseAdActivity
+import org.prebid.mobile.rendering.bidding.data.bid.BidResponse
+import org.prebid.mobile.rendering.models.openrtb.BidRequest
 
 class AppLovinMaxDisplayBanner300x250Activity : BaseAdActivity() {
 
@@ -79,6 +83,21 @@ class AppLovinMaxDisplayBanner300x250Activity : BaseAdActivity() {
             AdSize(WIDTH, HEIGHT),
             mediationUtils
         )
+
+        // Setup Agma SDK Listener
+        adUnit?.onBidRequestResponseListener = object : OnBidRequestResponseListener {
+            override fun onBidRequest(request: BidRequest?) {
+                Log.d("onBidRequest", request.toString())
+                request?.let {
+                    AgmaSdk.getInstance(applicationContext).didReceivePrebidRequest(it.jsonObject)
+                }
+            }
+
+            override fun onBidResponse(response: BidResponse?) {
+                Log.d("onBidResponse", response.toString())
+            }
+        }
+
         adUnit?.setRefreshInterval(refreshTimeSeconds)
         adUnit?.fetchDemand {
             adView?.loadAd()

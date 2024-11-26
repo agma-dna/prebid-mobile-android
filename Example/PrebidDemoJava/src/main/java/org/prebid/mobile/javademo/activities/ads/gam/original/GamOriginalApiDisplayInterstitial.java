@@ -11,12 +11,17 @@ import com.google.android.gms.ads.admanager.AdManagerAdRequest;
 import com.google.android.gms.ads.admanager.AdManagerInterstitialAd;
 import com.google.android.gms.ads.admanager.AdManagerInterstitialAdLoadCallback;
 
+import org.json.JSONException;
 import org.prebid.mobile.AdUnit;
 import org.prebid.mobile.InterstitialAdUnit;
 import org.prebid.mobile.OnBidRequestResponseListener;
 import org.prebid.mobile.javademo.activities.BaseAdActivity;
 import org.prebid.mobile.rendering.bidding.data.bid.BidResponse;
 import org.prebid.mobile.rendering.models.openrtb.BidRequest;
+
+import java.net.URI;
+
+import de.agmammc.agmasdk.android.AgmaSdk;
 
 public class GamOriginalApiDisplayInterstitial extends BaseAdActivity {
 
@@ -28,7 +33,6 @@ public class GamOriginalApiDisplayInterstitial extends BaseAdActivity {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         createAd();
     }
 
@@ -37,15 +41,22 @@ public class GamOriginalApiDisplayInterstitial extends BaseAdActivity {
         adUnit.setAutoRefreshInterval(getRefreshTimeSeconds());
 
         final AdManagerAdRequest.Builder builder = new AdManagerAdRequest.Builder();
+
+        // Setup Agma SDK Listener
         adUnit.onBidRequestResponseListener = new OnBidRequestResponseListener() {
             @Override
             public void onBidRequest(@Nullable BidRequest request) {
-                Log.d("GamInterstitial", request.toString());
+                Log.d("onBidRequest", request.toString());
+                try {
+                    AgmaSdk.getInstance(getApplicationContext()).didReceivePrebidRequest(request.getJsonObject());
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
             }
 
             @Override
             public void onBidResponse(@Nullable BidResponse response) {
-                Log.d("GamInterstitial", response.toString());
+                Log.d("onBidResponse", response.toString());
             }
         };
 
@@ -76,5 +87,10 @@ public class GamOriginalApiDisplayInterstitial extends BaseAdActivity {
         if (adUnit != null) {
             adUnit.stopAutoRefresh();
         }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
     }
 }

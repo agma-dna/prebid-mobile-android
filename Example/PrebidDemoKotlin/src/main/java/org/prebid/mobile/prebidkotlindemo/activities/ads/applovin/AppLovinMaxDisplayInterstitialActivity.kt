@@ -16,14 +16,19 @@
 package org.prebid.mobile.prebidkotlindemo.activities.ads.applovin
 
 import android.os.Bundle
+import android.util.Log
 import com.applovin.mediation.MaxAd
 import com.applovin.mediation.MaxAdListener
 import com.applovin.mediation.MaxError
 import com.applovin.mediation.adapters.prebid.utils.MaxMediationInterstitialUtils
 import com.applovin.mediation.ads.MaxInterstitialAd
+import de.agmammc.agmasdk.android.AgmaSdk
+import org.prebid.mobile.OnBidRequestResponseListener
 import org.prebid.mobile.api.data.AdUnitFormat
 import org.prebid.mobile.api.mediation.MediationInterstitialAdUnit
 import org.prebid.mobile.prebidkotlindemo.activities.BaseAdActivity
+import org.prebid.mobile.rendering.bidding.data.bid.BidResponse
+import org.prebid.mobile.rendering.models.openrtb.BidRequest
 import java.util.*
 
 class AppLovinMaxDisplayInterstitialActivity : BaseAdActivity() {
@@ -56,6 +61,20 @@ class AppLovinMaxDisplayInterstitialActivity : BaseAdActivity() {
             override fun onAdLoadFailed(adUnitId: String?, error: MaxError?) {}
             override fun onAdDisplayFailed(ad: MaxAd?, error: MaxError?) {}
         })
+
+        // Setup Agma SDK Listener
+        adUnit?.onBidRequestResponseListener = object : OnBidRequestResponseListener {
+            override fun onBidRequest(request: BidRequest?) {
+                Log.d("onBidRequest", request.toString())
+                request?.let {
+                    AgmaSdk.getInstance(applicationContext).didReceivePrebidRequest(it.jsonObject)
+                }
+            }
+
+            override fun onBidResponse(response: BidResponse?) {
+                Log.d("onBidResponse", response.toString())
+            }
+        }
 
         val mediationUtils = MaxMediationInterstitialUtils(maxInterstitialAd)
         adUnit = MediationInterstitialAdUnit(

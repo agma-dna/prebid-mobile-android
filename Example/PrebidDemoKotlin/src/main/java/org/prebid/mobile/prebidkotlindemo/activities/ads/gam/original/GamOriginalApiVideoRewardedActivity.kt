@@ -6,10 +6,14 @@ import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.admanager.AdManagerAdRequest
 import com.google.android.gms.ads.rewarded.RewardedAd
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
+import de.agmammc.agmasdk.android.AgmaSdk
+import org.prebid.mobile.OnBidRequestResponseListener
 import org.prebid.mobile.RewardedVideoAdUnit
 import org.prebid.mobile.Signals
 import org.prebid.mobile.VideoParameters
 import org.prebid.mobile.prebidkotlindemo.activities.BaseAdActivity
+import org.prebid.mobile.rendering.bidding.data.bid.BidResponse
+import org.prebid.mobile.rendering.models.openrtb.BidRequest
 
 class GamOriginalApiVideoRewardedActivity : BaseAdActivity() {
 
@@ -33,6 +37,20 @@ class GamOriginalApiVideoRewardedActivity : BaseAdActivity() {
 
         // 2. Configure Video parameters
         adUnit?.videoParameters = configureVideoParameters()
+
+        // Setup Agma SDK Listener
+        adUnit?.onBidRequestResponseListener = object : OnBidRequestResponseListener {
+            override fun onBidRequest(request: BidRequest?) {
+                Log.d("onBidRequest", request.toString())
+                request?.let {
+                    AgmaSdk.getInstance(applicationContext).didReceivePrebidRequest(it.jsonObject)
+                }
+            }
+
+            override fun onBidResponse(response: BidResponse?) {
+                Log.d("onBidResponse", response.toString())
+            }
+        }
 
         // 3. Make a bid request to Prebid Server
         val request = AdManagerAdRequest.Builder().build()

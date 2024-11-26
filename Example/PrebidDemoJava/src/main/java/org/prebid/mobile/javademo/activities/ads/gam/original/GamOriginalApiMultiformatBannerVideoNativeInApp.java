@@ -27,6 +27,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONException;
 import org.prebid.mobile.BannerParameters;
 import org.prebid.mobile.NativeAdUnit;
 import org.prebid.mobile.NativeAsset;
@@ -35,6 +36,7 @@ import org.prebid.mobile.NativeEventTracker;
 import org.prebid.mobile.NativeImageAsset;
 import org.prebid.mobile.NativeParameters;
 import org.prebid.mobile.NativeTitleAsset;
+import org.prebid.mobile.OnBidRequestResponseListener;
 import org.prebid.mobile.PrebidNativeAd;
 import org.prebid.mobile.PrebidNativeAdListener;
 import org.prebid.mobile.VideoParameters;
@@ -45,9 +47,13 @@ import org.prebid.mobile.api.original.PrebidRequest;
 import org.prebid.mobile.javademo.R;
 import org.prebid.mobile.javademo.activities.BaseAdActivity;
 import org.prebid.mobile.javademo.utils.ImageUtils;
+import org.prebid.mobile.rendering.bidding.data.bid.BidResponse;
+import org.prebid.mobile.rendering.models.openrtb.BidRequest;
 
 import java.util.ArrayList;
 import java.util.Random;
+
+import de.agmammc.agmasdk.android.AgmaSdk;
 
 public class GamOriginalApiMultiformatBannerVideoNativeInApp extends BaseAdActivity {
 
@@ -82,6 +88,25 @@ public class GamOriginalApiMultiformatBannerVideoNativeInApp extends BaseAdActiv
 
         // 3. Make a bid request to Prebid Server
         AdManagerAdRequest gamRequest = new AdManagerAdRequest.Builder().build();
+
+        // Setup Agma SDK Listener
+        prebidAdUnit.onBidRequestResponseListener = new OnBidRequestResponseListener() {
+            @Override
+            public void onBidRequest(@Nullable BidRequest request) {
+                Log.d("onBidRequest", request.toString());
+                try {
+                    AgmaSdk.getInstance(getApplicationContext()).didReceivePrebidRequest(request.getJsonObject());
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            @Override
+            public void onBidResponse(@Nullable BidResponse response) {
+                Log.d("onBidResponse", response.toString());
+            }
+        };
+
         prebidAdUnit.fetchDemand(gamRequest, prebidRequest, bidInfo -> {
             loadGam(gamRequest);
         });

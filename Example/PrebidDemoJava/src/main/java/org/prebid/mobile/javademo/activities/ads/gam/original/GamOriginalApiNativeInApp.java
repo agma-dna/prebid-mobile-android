@@ -22,11 +22,13 @@ import com.google.android.gms.ads.nativead.NativeAd;
 import com.google.android.gms.ads.nativead.NativeCustomFormatAd;
 import com.google.common.collect.Lists;
 
+import org.json.JSONException;
 import org.prebid.mobile.NativeAdUnit;
 import org.prebid.mobile.NativeDataAsset;
 import org.prebid.mobile.NativeEventTracker;
 import org.prebid.mobile.NativeImageAsset;
 import org.prebid.mobile.NativeTitleAsset;
+import org.prebid.mobile.OnBidRequestResponseListener;
 import org.prebid.mobile.PrebidNativeAd;
 import org.prebid.mobile.PrebidNativeAdEventListener;
 import org.prebid.mobile.PrebidNativeAdListener;
@@ -34,8 +36,12 @@ import org.prebid.mobile.addendum.AdViewUtils;
 import org.prebid.mobile.javademo.R;
 import org.prebid.mobile.javademo.activities.BaseAdActivity;
 import org.prebid.mobile.javademo.utils.ImageUtils;
+import org.prebid.mobile.rendering.bidding.data.bid.BidResponse;
+import org.prebid.mobile.rendering.models.openrtb.BidRequest;
 
 import java.util.ArrayList;
+
+import de.agmammc.agmasdk.android.AgmaSdk;
 
 public class GamOriginalApiNativeInApp extends BaseAdActivity {
 
@@ -62,6 +68,25 @@ public class GamOriginalApiNativeInApp extends BaseAdActivity {
 
         final AdManagerAdRequest adRequest = new AdManagerAdRequest.Builder().build();
         adLoader = createAdLoader(getAdWrapperView());
+
+        // Setup Agma SDK Listener
+        adUnit.onBidRequestResponseListener = new OnBidRequestResponseListener() {
+            @Override
+            public void onBidRequest(@Nullable BidRequest request) {
+                Log.d("onBidRequest", request.toString());
+                try {
+                    AgmaSdk.getInstance(getApplicationContext()).didReceivePrebidRequest(request.getJsonObject());
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            @Override
+            public void onBidResponse(@Nullable BidResponse response) {
+                Log.d("onBidResponse", response.toString());
+            }
+        };
+
         adUnit.fetchDemand(adRequest, resultCode -> adLoader.loadAd(adRequest));
     }
 

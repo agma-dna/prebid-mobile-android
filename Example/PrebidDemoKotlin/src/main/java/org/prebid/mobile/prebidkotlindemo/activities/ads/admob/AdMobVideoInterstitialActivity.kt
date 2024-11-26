@@ -21,11 +21,15 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
+import de.agmammc.agmasdk.android.AgmaSdk
+import org.prebid.mobile.OnBidRequestResponseListener
 import org.prebid.mobile.admob.AdMobMediationInterstitialUtils
 import org.prebid.mobile.admob.PrebidInterstitialAdapter
 import org.prebid.mobile.api.data.AdUnitFormat
 import org.prebid.mobile.api.mediation.MediationInterstitialAdUnit
 import org.prebid.mobile.prebidkotlindemo.activities.BaseAdActivity
+import org.prebid.mobile.rendering.bidding.data.bid.BidResponse
+import org.prebid.mobile.rendering.models.openrtb.BidRequest
 import java.util.*
 
 class AdMobVideoInterstitialActivity : BaseAdActivity() {
@@ -58,6 +62,21 @@ class AdMobVideoInterstitialActivity : BaseAdActivity() {
             EnumSet.of(AdUnitFormat.VIDEO),
             mediationUtils
         )
+
+        // Setup Agma SDK Listener
+        adUnit?.onBidRequestResponseListener = object : OnBidRequestResponseListener {
+            override fun onBidRequest(request: BidRequest?) {
+                Log.d("onBidRequest", request.toString())
+                request?.let {
+                    AgmaSdk.getInstance(applicationContext).didReceivePrebidRequest(it.jsonObject)
+                }
+            }
+
+            override fun onBidResponse(response: BidResponse?) {
+                Log.d("onBidResponse", response.toString())
+            }
+        }
+
         adUnit?.fetchDemand { result ->
             Log.d("Prebid", "Fetch demand result: $result")
 

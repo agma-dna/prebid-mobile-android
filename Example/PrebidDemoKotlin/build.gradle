@@ -33,6 +33,9 @@ dependencies {
     implementation project(':PrebidMobile-admobAdapters')
     implementation project(':PrebidMobile-maxAdapters')
 
+    // Agma SDK
+    implementation("de.agmammc:agmasdk:1.0.0")
+
     // For testing staging releases
 //    implementation "org.prebid:prebid-mobile-sdk:$prebidSdkVersionName"
 //    implementation "org.prebid:prebid-mobile-sdk-gam-event-handlers:$prebidSdkVersionName"

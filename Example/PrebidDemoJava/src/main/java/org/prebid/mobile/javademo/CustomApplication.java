@@ -19,12 +19,15 @@ package org.prebid.mobile.javademo;
 import android.app.Application;
 import android.util.Log;
 
+import de.agmammc.agmasdk.android.AgmaSdk;
+
 import org.prebid.mobile.ExternalUserId;
 import org.prebid.mobile.Host;
 import org.prebid.mobile.PrebidMobile;
 import org.prebid.mobile.api.data.InitializationStatus;
 import org.prebid.mobile.javademo.utils.Settings;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -39,6 +42,13 @@ public class CustomApplication extends Application {
         Settings.init(this);
         initPrebid();
         initPrebidExternalUserIds();
+        initAgmaSdk();
+    }
+
+    @Override
+    public void onTerminate() {
+        super.onTerminate();
+        AgmaSdk.getInstance(this).onTerminate();
     }
 
     private void initPrebid() {
@@ -57,6 +67,21 @@ public class CustomApplication extends Application {
                 Log.e(TAG, "SDK initialization error: " + status.getDescription());
             }
         });
+    }
+
+    private void initAgmaSdk() {
+        AgmaSdk.getInstance(this).setConfig(
+                new AgmaSdk.Config(
+                        "provided-by-agma",
+                        URI.create("https://pbm-stage.agma-analytics.de/v1/prebid-mobile"),
+                        "CPyFwIAPyFwIACnABIDEDVCkAP_AAAAAAAYgJmJV9D7dbXFDcXx3SPt0OYwW1dBTKuQhAhSAA2AFVAOQ8JQA02EaMATAhiACEQIAolYBAAEEHAFUAEGQQIAEAAHsIgSEhAAKIABEEBEQAAIQAAoKAIAAEAAIgAABIgSAmBiQSdLkRUCAGIAwDgBYAqgBCIABAgMBBEAIABAIAIIIwygAAQBAAIIAAAAAARAAAgAAAAAAIAAAAABAAAASEgAwABBMwNABgACCZgiADAAEEzBUAGAAIJmDIAMAAQTMHQAYAAgmYQgAwABBMwlABgACCZhSADAAEEzA.f_gAAAAABcgAAAAA",
+                        null,
+                        null,
+                        5,
+                        true,
+                        true
+                )
+        );
     }
 
     private void initPrebidExternalUserIds() {

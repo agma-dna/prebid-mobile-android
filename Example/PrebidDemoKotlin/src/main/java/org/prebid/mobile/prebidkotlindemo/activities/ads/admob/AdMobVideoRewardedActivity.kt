@@ -21,10 +21,14 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.rewarded.RewardedAd
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
+import de.agmammc.agmasdk.android.AgmaSdk
+import org.prebid.mobile.OnBidRequestResponseListener
 import org.prebid.mobile.admob.AdMobMediationRewardedUtils
 import org.prebid.mobile.admob.PrebidRewardedAdapter
 import org.prebid.mobile.api.mediation.MediationRewardedVideoAdUnit
 import org.prebid.mobile.prebidkotlindemo.activities.BaseAdActivity
+import org.prebid.mobile.rendering.bidding.data.bid.BidResponse
+import org.prebid.mobile.rendering.models.openrtb.BidRequest
 
 class AdMobVideoRewardedActivity : BaseAdActivity() {
 
@@ -55,6 +59,21 @@ class AdMobVideoRewardedActivity : BaseAdActivity() {
             CONFIG_ID,
             mediationUtils
         )
+
+        // Setup Agma SDK Listener
+        adUnit?.onBidRequestResponseListener = object : OnBidRequestResponseListener {
+            override fun onBidRequest(request: BidRequest?) {
+                Log.d("onBidRequest", request.toString())
+                request?.let {
+                    AgmaSdk.getInstance(applicationContext).didReceivePrebidRequest(it.jsonObject)
+                }
+            }
+
+            override fun onBidResponse(response: BidResponse?) {
+                Log.d("onBidResponse", response.toString())
+            }
+        }
+
         adUnit?.fetchDemand {
             RewardedAd.load(this, AD_UNIT_ID, request, object : RewardedAdLoadCallback() {
                 override fun onAdLoaded(ad: RewardedAd) {

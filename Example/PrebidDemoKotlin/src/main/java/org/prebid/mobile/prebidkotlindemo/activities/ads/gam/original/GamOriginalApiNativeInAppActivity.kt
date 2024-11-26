@@ -34,12 +34,15 @@ import com.google.android.gms.ads.nativead.NativeAd.OnNativeAdLoadedListener
 import com.google.android.gms.ads.nativead.NativeCustomFormatAd
 import com.google.android.gms.ads.nativead.NativeCustomFormatAd.OnCustomFormatAdLoadedListener
 import com.google.common.collect.Lists
+import de.agmammc.agmasdk.android.AgmaSdk
 import org.prebid.mobile.*
 import org.prebid.mobile.NativeEventTracker.EVENT_TRACKING_METHOD
 import org.prebid.mobile.addendum.AdViewUtils
 import org.prebid.mobile.prebidkotlindemo.R
 import org.prebid.mobile.prebidkotlindemo.activities.BaseAdActivity
 import org.prebid.mobile.prebidkotlindemo.utils.ImageUtils
+import org.prebid.mobile.rendering.bidding.data.bid.BidResponse
+import org.prebid.mobile.rendering.models.openrtb.BidRequest
 
 class GamOriginalApiNativeInAppActivity : BaseAdActivity() {
 
@@ -71,6 +74,20 @@ class GamOriginalApiNativeInAppActivity : BaseAdActivity() {
 
         // 2. Add native assets and trackers
         addNativeAssets(adUnit)
+
+        // Setup Agma SDK Listener
+        adUnit?.onBidRequestResponseListener = object : OnBidRequestResponseListener {
+            override fun onBidRequest(request: BidRequest?) {
+                Log.d("onBidRequest", request.toString())
+                request?.let {
+                    AgmaSdk.getInstance(applicationContext).didReceivePrebidRequest(it.jsonObject)
+                }
+            }
+
+            override fun onBidResponse(response: BidResponse?) {
+                Log.d("onBidResponse", response.toString())
+            }
+        }
 
         // 3. Make a bid request to Prebid Server
         val adRequest = AdManagerAdRequest.Builder().build()

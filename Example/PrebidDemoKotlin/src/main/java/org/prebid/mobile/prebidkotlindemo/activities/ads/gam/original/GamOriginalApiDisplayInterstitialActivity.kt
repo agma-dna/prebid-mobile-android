@@ -21,9 +21,13 @@ import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.admanager.AdManagerAdRequest
 import com.google.android.gms.ads.admanager.AdManagerInterstitialAd
 import com.google.android.gms.ads.admanager.AdManagerInterstitialAdLoadCallback
+import de.agmammc.agmasdk.android.AgmaSdk
 import org.prebid.mobile.AdUnit
 import org.prebid.mobile.InterstitialAdUnit
+import org.prebid.mobile.OnBidRequestResponseListener
 import org.prebid.mobile.prebidkotlindemo.activities.BaseAdActivity
+import org.prebid.mobile.rendering.bidding.data.bid.BidResponse
+import org.prebid.mobile.rendering.models.openrtb.BidRequest
 
 class GamOriginalApiDisplayInterstitialActivity : BaseAdActivity() {
 
@@ -47,6 +51,21 @@ class GamOriginalApiDisplayInterstitialActivity : BaseAdActivity() {
 
         // 2. Make a bid request to Prebid Server
         val request = AdManagerAdRequest.Builder().build()
+
+        // Setup Agma SDK Listener
+        adUnit?.onBidRequestResponseListener = object : OnBidRequestResponseListener {
+            override fun onBidRequest(request: BidRequest?) {
+                Log.d("onBidRequest", request.toString())
+                request?.let {
+                    AgmaSdk.getInstance(applicationContext).didReceivePrebidRequest(it.jsonObject)
+                }
+            }
+
+            override fun onBidResponse(response: BidResponse?) {
+                Log.d("onBidResponse", response.toString())
+            }
+        }
+
         adUnit?.fetchDemand(request) {
 
             // 3. Load a GAM interstitial ad
@@ -77,7 +96,6 @@ class GamOriginalApiDisplayInterstitialActivity : BaseAdActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-
         adUnit?.stopAutoRefresh()
     }
 }

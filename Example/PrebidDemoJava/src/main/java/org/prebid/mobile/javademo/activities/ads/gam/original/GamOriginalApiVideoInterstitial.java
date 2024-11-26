@@ -11,15 +11,21 @@ import com.google.android.gms.ads.admanager.AdManagerAdRequest;
 import com.google.android.gms.ads.admanager.AdManagerInterstitialAd;
 import com.google.android.gms.ads.admanager.AdManagerInterstitialAdLoadCallback;
 
+import org.json.JSONException;
 import org.prebid.mobile.InterstitialAdUnit;
+import org.prebid.mobile.OnBidRequestResponseListener;
 import org.prebid.mobile.Signals;
 import org.prebid.mobile.VideoParameters;
 import org.prebid.mobile.api.data.AdUnitFormat;
 import org.prebid.mobile.javademo.activities.BaseAdActivity;
 import org.prebid.mobile.javademo.utils.Settings;
+import org.prebid.mobile.rendering.bidding.data.bid.BidResponse;
+import org.prebid.mobile.rendering.models.openrtb.BidRequest;
 
 import java.util.Collections;
 import java.util.EnumSet;
+
+import de.agmammc.agmasdk.android.AgmaSdk;
 
 public class GamOriginalApiVideoInterstitial extends BaseAdActivity {
 
@@ -45,6 +51,24 @@ public class GamOriginalApiVideoInterstitial extends BaseAdActivity {
         adUnit.setVideoParameters(parameters);
 
         final AdManagerAdRequest.Builder builder = new AdManagerAdRequest.Builder();
+
+        // Setup Agma SDK Listener
+        adUnit.onBidRequestResponseListener = new OnBidRequestResponseListener() {
+            @Override
+            public void onBidRequest(@Nullable BidRequest request) {
+                Log.d("onBidRequest", request.toString());
+                try {
+                    AgmaSdk.getInstance(getApplicationContext()).didReceivePrebidRequest(request.getJsonObject());
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            @Override
+            public void onBidResponse(@Nullable BidResponse response) {
+                Log.d("onBidResponse", response.toString());
+            }
+        };
 
         adUnit.fetchDemand(builder, resultCode -> {
             AdManagerAdRequest request = builder.build();

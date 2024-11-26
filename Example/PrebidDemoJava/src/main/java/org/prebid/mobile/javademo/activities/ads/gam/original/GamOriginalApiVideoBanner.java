@@ -1,6 +1,7 @@
 package org.prebid.mobile.javademo.activities.ads.gam.original;
 
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -10,16 +11,22 @@ import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.admanager.AdManagerAdRequest;
 import com.google.android.gms.ads.admanager.AdManagerAdView;
 
+import org.json.JSONException;
 import org.prebid.mobile.BannerAdUnit;
+import org.prebid.mobile.OnBidRequestResponseListener;
 import org.prebid.mobile.Signals;
 import org.prebid.mobile.VideoParameters;
 import org.prebid.mobile.addendum.AdViewUtils;
 import org.prebid.mobile.addendum.PbFindSizeError;
 import org.prebid.mobile.api.data.AdUnitFormat;
 import org.prebid.mobile.javademo.activities.BaseAdActivity;
+import org.prebid.mobile.rendering.bidding.data.bid.BidResponse;
+import org.prebid.mobile.rendering.models.openrtb.BidRequest;
 
 import java.util.Collections;
 import java.util.EnumSet;
+
+import de.agmammc.agmasdk.android.AgmaSdk;
 
 public class GamOriginalApiVideoBanner extends BaseAdActivity {
 
@@ -56,6 +63,25 @@ public class GamOriginalApiVideoBanner extends BaseAdActivity {
         final AdManagerAdRequest.Builder builder = new AdManagerAdRequest.Builder();
 
         adUnit.setAutoRefreshInterval(getRefreshTimeSeconds());
+
+        // Setup Agma SDK Listener
+        adUnit.onBidRequestResponseListener = new OnBidRequestResponseListener() {
+            @Override
+            public void onBidRequest(@Nullable BidRequest request) {
+                Log.d("onBidRequest", request.toString());
+                try {
+                    AgmaSdk.getInstance(getApplicationContext()).didReceivePrebidRequest(request.getJsonObject());
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            @Override
+            public void onBidResponse(@Nullable BidResponse response) {
+                Log.d("onBidResponse", response.toString());
+            }
+        };
+
         adUnit.fetchDemand(builder, resultCode -> {
             AdManagerAdRequest request = builder.build();
             gamView.loadAd(request);

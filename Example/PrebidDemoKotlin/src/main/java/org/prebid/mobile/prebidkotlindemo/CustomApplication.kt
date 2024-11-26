@@ -21,11 +21,13 @@ import android.util.Log
 import com.applovin.sdk.AppLovinSdk
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
+import de.agmammc.agmasdk.android.AgmaSdk
 import org.prebid.mobile.Host
 import org.prebid.mobile.PrebidMobile
 import org.prebid.mobile.TargetingParams
 import org.prebid.mobile.api.data.InitializationStatus
 import org.prebid.mobile.prebidkotlindemo.utils.Settings
+import java.net.URI
 
 class CustomApplication : Application() {
 
@@ -36,10 +38,16 @@ class CustomApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         initPrebidSDK()
+        initAgmaSdk()
         initAdMob()
         initApplovinMax()
         TargetingParams.setSubjectToGDPR(true)
         Settings.init(this)
+    }
+
+    override fun onTerminate() {
+        super.onTerminate()
+        AgmaSdk.getInstance(this).onTerminate()
     }
 
     private fun initPrebidSDK() {
@@ -54,6 +62,21 @@ class CustomApplication : Application() {
             }
         }
         PrebidMobile.setShareGeoLocation(true)
+    }
+
+    private fun initAgmaSdk() {
+        val config = AgmaSdk.Config(
+            "provided-by-agma",
+            URI.create("https://pbm-stage.agma-analytics.de/v1/prebid-mobile"),
+            "CPyFwIAPyFwIACnABIDEDVCkAP_AAAAAAAYgJmJV9D7dbXFDcXx3SPt0OYwW1dBTKuQhAhSAA2AFVAOQ8JQA02EaMATAhiACEQIAolYBAAEEHAFUAEGQQIAEAAHsIgSEhAAKIABEEBEQAAIQAAoKAIAAEAAIgAABIgSAmBiQSdLkRUCAGIAwDgBYAqgBCIABAgMBBEAIABAIAIIIwygAAQBAAIIAAAAAARAAAgAAAAAAIAAAAABAAAASEgAwABBMwNABgACCZgiADAAEEzBUAGAAIJmDIAMAAQTMHQAYAAgmYQgAwABBMwlABgACCZhSADAAEEzA.f_gAAAAABcgAAAAA",
+            null,
+            null,
+            5,
+            true,
+            true
+        )
+
+        AgmaSdk.getInstance(this).setConfig(config)
     }
 
     private fun initAdMob() {
