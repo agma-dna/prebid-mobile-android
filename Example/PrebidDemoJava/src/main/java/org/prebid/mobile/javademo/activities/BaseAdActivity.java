@@ -14,6 +14,8 @@ import org.prebid.mobile.javademo.testcases.TestCase;
 import org.prebid.mobile.javademo.testcases.TestCaseRepository;
 import org.prebid.mobile.javademo.utils.Settings;
 
+import de.agmammc.agmasdk.android.AgmaSdk;
+
 public class BaseAdActivity extends AppCompatActivity {
 
     protected ActivityDemoBinding binding;
@@ -36,4 +38,9 @@ public class BaseAdActivity extends AppCompatActivity {
         return Settings.get().getRefreshTimeSeconds();
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        AgmaSdk.getInstance(this).onPause();
+    }
 }

@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.annotation.CallSuper
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import de.agmammc.agmasdk.android.AgmaSdk
 import org.prebid.mobile.prebidkotlindemo.R
 import org.prebid.mobile.prebidkotlindemo.databinding.ActivityDemoBinding
 import org.prebid.mobile.prebidkotlindemo.testcases.TestCase
@@ -35,4 +36,8 @@ open class BaseAdActivity : AppCompatActivity() {
         binding.tvTestCaseName.text = getText(testCase.titleStringRes)
     }
 
+    override fun onPause() {
+        super.onPause()
+        AgmaSdk.getInstance(this).onPause()
+    }
 }

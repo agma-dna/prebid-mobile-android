@@ -47,6 +47,9 @@ dependencies {
     implementation 'com.google.android.exoplayer:exoplayer-ui:2.15.1'
     implementation 'com.google.android.exoplayer:extension-ima:2.15.1'
 
+    // AGMA SDK
+    implementation("de.agmammc:agmasdk:1.0.1")
+
     // Multidex
     implementation 'androidx.multidex:multidex:2.0.0'
 

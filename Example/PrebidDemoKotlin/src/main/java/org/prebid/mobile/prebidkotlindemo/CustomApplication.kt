@@ -21,13 +21,18 @@ import android.util.Log
 import com.applovin.sdk.AppLovinSdk
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
+import de.agmammc.agmasdk.android.AgmaSdk
+import org.json.JSONObject
 import org.prebid.mobile.Host
+import org.prebid.mobile.PrebidEventDelegate
 import org.prebid.mobile.PrebidMobile
 import org.prebid.mobile.TargetingParams
 import org.prebid.mobile.api.data.InitializationStatus
 import org.prebid.mobile.prebidkotlindemo.utils.Settings
+import java.net.URI
 
-class CustomApplication : Application() {
+
+class CustomApplication : Application(), PrebidEventDelegate {
 
     companion object {
         private const val TAG = "PrebidCustomApplication"
@@ -46,6 +51,22 @@ class CustomApplication : Application() {
         PrebidMobile.setPrebidServerAccountId("0689a263-318d-448b-a3d4-b02e8a709d9d")
         PrebidMobile.setPrebidServerHost(Host.createCustomHost("https://prebid-server-test-j.prebid.org/openrtb2/auction"))
         PrebidMobile.setCustomStatusEndpoint("https://prebid-server-test-j.prebid.org/status")
+
+        // AGMA SDK
+        AgmaSdk.getInstance(this).setConfig(
+            AgmaSdk.Config(
+            "provided-by-agma",
+            URI.create("https://pbm-stage.agma-analytics.de/v1/prebid-mobile"),
+            "CPyFwIAPyFwIACnABIDEDVCkAP_AAAAAAAYgJmJV9D7dbXFDcXx3SPt0OYwW1dBTKuQhAhSAA2AFVAOQ8JQA02EaMATAhiACEQIAolYBAAEEHAFUAEGQQIAEAAHsIgSEhAAKIABEEBEQAAIQAAoKAIAAEAAIgAABIgSAmBiQSdLkRUCAGIAwDgBYAqgBCIABAgMBBEAIABAIAIIIwygAAQBAAIIAAAAAARAAAgAAAAAAIAAAAABAAAASEgAwABBMwNABgACCZgiADAAEEzBUAGAAIJmDIAMAAQTMHQAYAAgmYQgAwABBMwlABgACCZhSADAAEEzA.f_gAAAAABcgAAAAA",
+            null,
+            null,
+            5,
+            true,
+            true
+            )
+        )
+        PrebidMobile.setEventDelegate(this)
+
         PrebidMobile.initializeSdk(applicationContext) { status ->
             if (status == InitializationStatus.SUCCEEDED) {
                 Log.d(TAG, "SDK initialized successfully!")
@@ -84,6 +105,10 @@ class CustomApplication : Application() {
         AppLovinSdk.getInstance(this).mediationProvider = "max"
         AppLovinSdk.getInstance(this).initializeSdk { }
         AppLovinSdk.getInstance(this).settings.setVerboseLogging(false)
+    }
+
+    override fun onBidResponse(request: JSONObject?, response: JSONObject?) {
+        AgmaSdk.getInstance(this).didReceivePrebidRequest(request)
     }
 
 }

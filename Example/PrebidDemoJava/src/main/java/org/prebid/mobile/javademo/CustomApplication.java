@@ -21,17 +21,22 @@ import android.util.Log;
 
 import com.google.android.gms.ads.MobileAds;
 
+import org.json.JSONObject;
 import org.prebid.mobile.ExternalUserId;
 import org.prebid.mobile.Host;
+import org.prebid.mobile.PrebidEventDelegate;
 import org.prebid.mobile.PrebidMobile;
 import org.prebid.mobile.TargetingParams;
 import org.prebid.mobile.api.data.InitializationStatus;
 import org.prebid.mobile.javademo.utils.Settings;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class CustomApplication extends Application {
+import de.agmammc.agmasdk.android.AgmaSdk;
+
+public class CustomApplication extends Application implements PrebidEventDelegate {
 
     private static final String TAG = "PrebidCustomApplication";
 
@@ -53,6 +58,22 @@ public class CustomApplication extends Application {
                         "https://prebid-server-test-j.prebid.org/openrtb2/auction"
                 )
         );
+
+        // AGMA SDK
+        AgmaSdk.getInstance(this).setConfig(
+                new AgmaSdk.Config(
+                        "provided-by-agma",
+                        URI.create("https://pbm-stage.agma-analytics.de/v1/prebid-mobile"),
+                        "CPyFwIAPyFwIACnABIDEDVCkAP_AAAAAAAYgJmJV9D7dbXFDcXx3SPt0OYwW1dBTKuQhAhSAA2AFVAOQ8JQA02EaMATAhiACEQIAolYBAAEEHAFUAEGQQIAEAAHsIgSEhAAKIABEEBEQAAIQAAoKAIAAEAAIgAABIgSAmBiQSdLkRUCAGIAwDgBYAqgBCIABAgMBBEAIABAIAIIIwygAAQBAAIIAAAAAARAAAgAAAAAAIAAAAABAAAASEgAwABBMwNABgACCZgiADAAEEzBUAGAAIJmDIAMAAQTMHQAYAAgmYQgAwABBMwlABgACCZhSADAAEEzA.f_gAAAAABcgAAAAA",
+                        null,
+                        null,
+                        5,
+                        true,
+                        true
+                )
+        );
+        PrebidMobile.setEventDelegate(this);
+
         PrebidMobile.initializeSdk(getApplicationContext(), status -> {
             if (status == InitializationStatus.SUCCEEDED) {
                 Log.d(TAG, "SDK initialized successfully!");
@@ -88,4 +109,8 @@ public class CustomApplication extends Application {
         PrebidMobile.setExternalUserIds(externalUserIdArray);
     }
 
+    @Override
+    public void onBidResponse(JSONObject request, JSONObject response) {
+        AgmaSdk.getInstance(getApplicationContext()).didReceivePrebidRequest(request);
+    }
 }
