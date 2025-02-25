@@ -22,6 +22,8 @@ import com.applovin.sdk.AppLovinSdk
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
 import de.agmammc.agmasdk.android.AgmaSdk
+import de.agmammc.agmasdk.android.id5.Id5Response
+import de.agmammc.agmasdk.android.id5.Id5ResponseListener
 import org.json.JSONObject
 import org.prebid.mobile.Host
 import org.prebid.mobile.PrebidEventDelegate
@@ -32,7 +34,7 @@ import org.prebid.mobile.prebidkotlindemo.utils.Settings
 import java.net.URI
 
 
-class CustomApplication : Application(), PrebidEventDelegate {
+class CustomApplication : Application(), PrebidEventDelegate, Id5ResponseListener {
 
     companion object {
         private const val TAG = "PrebidCustomApplication"
@@ -53,7 +55,8 @@ class CustomApplication : Application(), PrebidEventDelegate {
         PrebidMobile.setCustomStatusEndpoint("https://prebid-server-test-j.prebid.org/status")
 
         // AGMA SDK
-        AgmaSdk.getInstance(this).setConfig(
+        val agmaSdk = AgmaSdk.getInstance(this)
+        agmaSdk.setConfig(
             AgmaSdk.Config(
             "provided-by-agma",
             URI.create("https://pbm-stage.agma-analytics.de/v1/prebid-mobile"),
@@ -65,6 +68,23 @@ class CustomApplication : Application(), PrebidEventDelegate {
             true
             )
         )
+
+        agmaSdk.setId5Config(
+            AgmaSdk.Id5Config(
+                AgmaSdk.Id5Config.AppConfig(
+                    "com.agmammc.agmasdk.android.id5test",
+                    "1",
+                    "com.example"
+                ),
+                1234,
+                "com.example",
+                phone = "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
+                hem = "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
+            )
+        )
+
+        agmaSdk.setId5ResponseListener(this)
+
         PrebidMobile.setEventDelegate(this)
 
         PrebidMobile.initializeSdk(applicationContext) { status ->
@@ -111,4 +131,7 @@ class CustomApplication : Application(), PrebidEventDelegate {
         AgmaSdk.getInstance(this).didReceivePrebidRequest(request)
     }
 
+    override fun onId5ResponseReceived(response: Id5Response) {
+        Log.d(TAG, "onId5ResponseReceived ${response.toString()}")
+    }
 }

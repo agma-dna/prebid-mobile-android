@@ -19,6 +19,8 @@ package org.prebid.mobile.javademo;
 import android.app.Application;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.google.android.gms.ads.MobileAds;
 
 import org.json.JSONObject;
@@ -35,8 +37,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import de.agmammc.agmasdk.android.AgmaSdk;
+import de.agmammc.agmasdk.android.id5.Id5Response;
+import de.agmammc.agmasdk.android.id5.Id5ResponseListener;
 
-public class CustomApplication extends Application implements PrebidEventDelegate {
+public class CustomApplication extends Application implements PrebidEventDelegate, Id5ResponseListener {
 
     private static final String TAG = "PrebidCustomApplication";
 
@@ -60,7 +64,8 @@ public class CustomApplication extends Application implements PrebidEventDelegat
         );
 
         // AGMA SDK
-        AgmaSdk.getInstance(this).setConfig(
+        AgmaSdk agmaSdk = AgmaSdk.getInstance(this);
+        agmaSdk.setConfig(
                 new AgmaSdk.Config(
                         "provided-by-agma",
                         URI.create("https://pbm-stage.agma-analytics.de/v1/prebid-mobile"),
@@ -72,6 +77,23 @@ public class CustomApplication extends Application implements PrebidEventDelegat
                         true
                 )
         );
+
+        agmaSdk.setId5Config(
+                new AgmaSdk.Id5Config(
+                        new AgmaSdk.Id5Config.AppConfig(
+                                "com.agmammc.agmasdk.android.id5test",
+                                "1",
+                                "com.example"
+                        ),
+                        1234,
+                        "com.example",
+                        null,
+                        null
+                )
+        );
+
+        agmaSdk.setId5ResponseListener(this);
+
         PrebidMobile.setEventDelegate(this);
 
         PrebidMobile.initializeSdk(getApplicationContext(), status -> {
@@ -112,5 +134,10 @@ public class CustomApplication extends Application implements PrebidEventDelegat
     @Override
     public void onBidResponse(JSONObject request, JSONObject response) {
         AgmaSdk.getInstance(getApplicationContext()).didReceivePrebidRequest(request);
+    }
+
+    @Override
+    public void onId5ResponseReceived(@NonNull Id5Response id5Response) {
+        Log.d(TAG, "onId5ResponseReceived" + id5Response.toString());
     }
 }
