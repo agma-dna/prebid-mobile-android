@@ -64,7 +64,7 @@ dependencies {
     implementation 'com.google.android.exoplayer:extension-ima:2.15.1'
 
     // AGMA SDK
-    implementation("de.agmammc:agmasdk:1.1.0.rc1")
+    implementation("de.agmammc:agmasdk:1.1.0.rc3")
 
     // Tests
     testImplementation 'junit:junit:4.13.2'
