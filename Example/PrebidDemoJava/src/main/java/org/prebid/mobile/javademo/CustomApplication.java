@@ -88,6 +88,7 @@ public class CustomApplication extends Application implements PrebidEventDelegat
                         1234,
                         "com.example",
                         null,
+                        null,
                         null
                 )
         );
